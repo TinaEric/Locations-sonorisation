@@ -10,13 +10,21 @@ import {
   PackageOpen,
   Package,
   Speaker,
+  Calendar,
   Tags,
+  UserCircle,
+  Settings,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
 const NAV = [
   {
-    items: [{ to: "/", label: "Tableau de bord", icon: LayoutDashboard, end: true }],
+    title: "Dashboard",
+    items: [
+      { to: "/", label: "Tableau de bord", icon: LayoutDashboard, end: true },
+      { to: "/calendrier", label: "Calendrier", icon: Calendar },
+      { to: "/notifications", label: "Notifications", icon: Bell }
+    ],
   },
   {
     title: "Opérations",
@@ -36,7 +44,10 @@ const NAV = [
   },
   {
     title: "Compte",
-    items: [{ to: "/notifications", label: "Notifications", icon: Bell }],
+    items: [
+      { to: "/utilisateur", label: "Utilisateur", icon: UserCircle },
+      { to: "/config", label: "Paramètre", icon: Settings },
+    ],
   },
 ];
 

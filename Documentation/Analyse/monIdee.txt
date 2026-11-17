@@ -1,0 +1,5 @@
+cette usecase est la source de la transaction de location de matériel de sonorisation qui permettant au locataire d’envoyer sa demande de réservation au loueur.
+
+L’accès à certaine fonctionnalité a besoin d’une barrière pour contrôler l’action de l’utilisateur au système. Ce cas d’utilisation permet de répondre ce besoin. 
+
+Pour permettre le loueur de bien gérer les demandes des locataires, ce module de gestion de réservation réduit la charge manuelle du loueur à la réception des commandes et le calcul de la disponibilité de chaque équipement. 

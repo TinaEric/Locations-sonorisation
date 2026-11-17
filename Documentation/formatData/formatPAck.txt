@@ -1,0 +1,95 @@
+
+
+GET http://localhost:3000/pack/PACK0003/public
+{
+    "dateDebut": "2026-11-18",
+    "dateFin": "2026-11-18"
+}
+{
+
+  "codePack": "PACK0003",
+  "libelle": "JAZZ GISTE",
+  "description": "tena oe raitra bee ty baina",
+  "categoriePack": "mariage",
+  "capaciteMin": 50,
+  "capaciteMax": 100,
+  "typeLieu": "mixte",
+  "usages": [
+    "Live",
+    "Musique de fond",
+    "DJ",
+    "Discours"
+  ],
+  "puissanceTotal": "2000.00",
+  "tarifJournalier": "400000.00",
+  "prixCaution": "100000.00",
+  "statutPack": "actif",
+  "photos": "Portrait dâidentitÃ© sobre en chemise blanche.png",
+  "dateCreation": "2026-11-03T08:50:33.459Z",
+  "dateModification": "2026-11-12T06:00:31.982Z",
+  "composants": [
+    {
+      "idComposant": 70,
+      "quantite": 1,
+      "materiel": {
+        "CodeMateriel": "SON0002-MAT0003",
+        "designation": "Micro sans fil Shure SM58",
+        "marque": "Shure",
+        "detailTechnique": "Sans fil UHF, portée 50 ",
+        "imageURL": "1722874168873.jpg",
+        "prixLocation": "10000.00",
+        "prixCaution": "5000.00",
+        "isDelete": "non",
+        "quantiteTotale": 2,
+        "quantiteReservee": 0,
+        "quantiteDisponible": 2
+      },
+      "disponible": 2,
+      "composantDisponible": true
+    },...…
+
+
+
+
+GET http://localhost:3000/pack/PACK0003
+content-type: application/json
+
+{
+  "codePack": "PACK0003",
+  "libelle": "JAZZ GISTE",
+  "description": "tena oe raitra bee ty baina",
+  "categoriePack": "mariage",
+  "capaciteMin": 50,
+  "capaciteMax": 100,
+  "typeLieu": "mixte",
+  "usages": [
+    "Live",
+    "Musique de fond",
+    "DJ",
+    "Discours"
+  ],
+  "puissanceTotal": "2000.00",
+  "tarifJournalier": "400000.00",
+  "prixCaution": "100000.00",
+  "statutPack": "actif",
+  "photos": "Portrait dâidentitÃ© sobre en chemise blanche.png",
+  "dateCreation": "2026-11-03T08:50:33.459Z",
+  "dateModification": "2026-11-12T06:00:31.982Z",
+  "composants": [
+    {
+      "idComposant": 70,
+      "quantite": 1,
+      "materiel": {
+        "CodeMateriel": "SON0002-MAT0003",
+        "designation": "Micro sans fil Shure SM58",
+        "marque": "Shure",
+        "detailTechnique": "Sans fil UHF, portée 50 ",
+        "imageURL": "1722874168873.jpg",
+        "prixLocation": "10000.00",
+        "prixCaution": "5000.00"
+      }
+    },
+
+
+
+LE contenu 

@@ -1,0 +1,43 @@
+http://localhost:3000/reservation/materiels-disponibles
+[
+    {
+        "idCategorie": "SON0002",
+        "codeCategorie": "SON",
+        "libelle": "Matériel Sonorisation",
+        "descriptionCategorie": "ato zany izy jibye",
+        "typeCategorie": "sonorisation",
+        "statutCategorie": "actif",
+        "materiels": [
+            {
+                "CodeMateriel": "SON0002-MAT0003",
+                "designation": "Micro sans fil Shure SM58",
+                "marque": "Shure",
+                "detailTechnique": "Sans fil UHF, portée 50 ",
+                "imageURL": "https://exemple.com/shure-sm58.jpg",
+                "prixLocation": "10000.00",
+                "prixCaution": "5000.00",
+                "isDelete": "non",
+                "quantiteTotale": 2,
+                "quantiteReservee": 0,
+                "quantiteDisponible": 2
+            },
+            {
+                "CodeMateriel": "SON0002-MAT0002",
+                "designation": "Enceinte active JBL 15 pouces",
+                "marque": "JBL",
+                "detailTechnique": "1000W, Bluetooth, entrée XLR",
+                "imageURL": "https://exemple.com/jbl-eon615.jpg",
+                "prixLocation": "2500.00",
+                "prixCaution": "120.00",
+                "isDelete": "non",
+                "quantiteTotale": 2,
+                "quantiteReservee": 0,
+                "quantiteDisponible": 2
+            }
+        ],
+        "isDelete": "non"
+    },....
+
+
+
+]

@@ -1,17 +1,29 @@
 import axios from 'axios';
 
-//  const API_URL = ' http://192.168.1.159:3000';
-// agaba david
-// const API_URL = ' http://192.168.21.143:3000';
-// const API_URL = ' http://192.168.43.143:3000';
-const API_URL = ' http://localhost:3000';
+// export const API_URL = 'http://192.168.1.161:3000';
+// export const API_URL = 'http://192.168.1.159:3000';
+// export const API_URL = 'http://192.168.21.143:3000';
+ export const API_URL = 'http://192.168.43.143:3000';
+// export const API_URL = 'http://localhost:3000'
 
-const api =  axios.create({
+export const api =  axios.create({
     baseURL: API_URL,
     headers: {
       'Content-Type': 'application/json',
     },
 });
+
+export const IMAGES_URL = `${API_URL}/uploads/images`;
+
+export const apiModel = async (formData) => {
+  const url = API_URL + '/categorie/copieImage';
+  return await axios.post(url, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data', 
+    },
+  });
+};
+
 
 api.interceptors.request.use(
   (config) => {
@@ -40,4 +52,3 @@ api.interceptors.response.use(
   },
 );
 
-export default api;

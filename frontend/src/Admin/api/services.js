@@ -1,4 +1,4 @@
-import api  from '../../data/Api';
+import {api}  from '../../data/Api';
 import { verifierReponse } from '../../data/verifierReponse';
 /**
  * Contrat d'API attendu (adaptez les routes à votre backend).

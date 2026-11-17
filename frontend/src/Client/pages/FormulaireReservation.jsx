@@ -1,0 +1,567 @@
+// Client/pages/FormulaireReservation.jsx
+import { useMemo, useState } from "react";
+import { Navigate, useNavigate } from "react-router-dom";
+import { Truck } from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
+import { useToast } from "../../contexts/ToastContext";
+import { ReservationService } from "../../data/reservationService";
+import EtapesReservation from "../components/commun/EtapesReservation";
+import MessageErreur from "../components/commun/MessageErreur";
+import ResumeTarif from "../components/panier/ResumeTarif";
+import { useFilter } from "../contexts/FilterContext";
+import { usePanier } from "../contexts/PanierContext";
+import useDisponibilites from "../hooks/useDisponibilites";
+import { MODES_RETRAIT } from "../utils/constantes";
+import { construireReservation } from "../utils/construireReservation";
+import { evaluerLigne, ligneBloquante } from "../utils/disponibilite";
+import { extraireMessageErreur } from "../utils/erreurs";
+import { sauvegarderInfosPaiement } from "../utils/sessionPaiement";
+
+const VALEUR_LIVRAISON =
+  MODES_RETRAIT.find((m) => m.valeur === "LIVRAISON")?.valeur ?? "LIVRAISON";
+
+export default function FormulaireReservation() {
+  const navigate = useNavigate();
+  const toast = useToast();
+  const { user } = useAuth();
+  const { periode, periodeValide } = useFilter();
+  const { lignes, totaux, viderPanier } = usePanier();
+  const disponibilites = useDisponibilites(periode);
+
+  const [formulaire, setFormulaire] = useState({
+    lieuEvenement: "",
+    modeRetrait: MODES_RETRAIT[0].valeur,
+    fraisLivraison: 0,
+    remarques: "",
+    accepteConditions: false,
+  });
+  const [erreurs, setErreurs] = useState({});
+  const [envoiEnCours, setEnvoiEnCours] = useState(false);
+
+  const actionLocataire = useMemo(() => {
+    if (!lignes?.length) return "materiel";
+    const aUnPack = lignes.some((l) => l.type === "pack");
+    const aMateriels = lignes.some((l) => l.type === "materiel");
+    if (aUnPack && aMateriels) return "personnalise";
+    if (aUnPack) return "pack";
+    return "materiel";
+  }, [lignes]);
+
+  const modifier = (champ, valeur) => {
+    setFormulaire((prev) => ({ ...prev, [champ]: valeur }));
+    setErreurs((prev) => ({ ...prev, [champ]: undefined }));
+  };
+
+  const valider = () => {
+    const resultat = {};
+    if (!formulaire.lieuEvenement.trim()) {
+      resultat.lieuEvenement = "Indiquez le lieu de l'événement.";
+    }
+    if (!formulaire.accepteConditions) {
+      resultat.accepteConditions =
+        "Vous devez accepter les conditions de location.";
+    }
+    if (
+      formulaire.modeRetrait === VALEUR_LIVRAISON &&
+      (formulaire.fraisLivraison == null || formulaire.fraisLivraison < 0)
+    ) {
+      resultat.fraisLivraison = "Indiquez des frais de livraison valides.";
+    }
+    if (!user?.idUser) {
+      resultat.global = "Session utilisateur introuvable. Reconnectez-vous.";
+    }
+    setErreurs(resultat);
+    return Object.keys(resultat).length === 0;
+  };
+
+  const soumettre = async (e) => {
+    e.preventDefault();
+    if (!valider()) return;
+
+    if (
+      lignes.some((l) =>
+        ligneBloquante(evaluerLigne(disponibilites.obtenir, l)),
+      )
+    ) {
+      toast.error(
+        "Certains articles ne sont plus disponibles. Revenez au panier.",
+      );
+      navigate("/panier");
+      return;
+    }
+
+    setEnvoiEnCours(true);
+    const payload = construireReservation({
+      idUser: user.idUser,
+      lignes,
+      periode,
+      formulaire,
+      actionLocataire,
+    });
+    console.log(" DATA RESERVATION: ", payload);
+    try {
+
+      const reservation = await ReservationService.create(payload);
+      viderPanier();
+
+      const numReservation = reservation?.numReservation;
+      if (!numReservation) {
+        toast.info("Réservation enregistrée. Retrouvez-la dans votre profil.");
+        navigate("/profil", { replace: true });
+        return;
+      }
+
+      sauvegarderInfosPaiement(numReservation, {
+        acompte: totaux.acompte,
+        totalLocation: totaux.totalLocation,
+        totalCaution: totaux.totalCaution,
+      });
+
+      toast.info("Réservation créée. Passez au paiement de l'acompte.");
+      versPaiement(reservation.numReservation)
+    } catch (erreur) {
+      console.error("[FormulaireReservation] échec création :", erreur);
+      toast.error(
+        extraireMessageErreur(
+          erreur,
+          "La réservation n'a pas pu être créée. Vérifiez les disponibilités et réessayez.",
+        ),
+      );
+    } finally {
+      setEnvoiEnCours(false);
+    }
+  };
+
+    const versPaiement = (num) => {
+    navigate("/paiement", {
+      state: {
+        numReservation: num,
+        telephone: user.telephone
+      },
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <EtapesReservation etapeActive={2} />
+      <MessageErreur
+        message={disponibilites.erreur}
+        onReessayer={disponibilites.rafraichir}
+      />
+
+      <form onSubmit={soumettre} className="grid gap-6 lg:grid-cols-[1fr_22rem]">
+        <div className="card card-border bg-base-100">
+          <div className="card-body gap-4">
+            <h1 className="card-title">Votre événement</h1>
+
+            {erreurs.global && (
+              <div className="alert alert-error text-sm">{erreurs.global}</div>
+            )}
+
+            <label className="form-control">
+              <span className="mb-1 text-sm font-medium">
+                Lieu de l'événement *
+              </span>
+              <input
+                className={`input input-bordered w-full ${
+                  erreurs.lieuEvenement ? "input-error" : ""
+                }`}
+                placeholder="Ex : Salle des fêtes, Ivato"
+                value={formulaire.lieuEvenement}
+                onChange={(e) => modifier("lieuEvenement", e.target.value)}
+              />
+              {erreurs.lieuEvenement && (
+                <span className="mt-1 text-xs text-error">
+                  {erreurs.lieuEvenement}
+                </span>
+              )}
+            </label>
+
+            <fieldset className="space-y-2">
+              <legend className="mb-1 flex items-center gap-1 text-sm font-medium">
+                <Truck className="size-4" /> Mode de récupération
+              </legend>
+              {MODES_RETRAIT.map((mode) => (
+                <label
+                  key={mode.valeur}
+                  className="flex cursor-pointer items-center gap-3 rounded-box border border-base-300 p-3"
+                >
+                  <input
+                    type="radio"
+                    name="modeRetrait"
+                    className="radio radio-primary radio-sm"
+                    checked={formulaire.modeRetrait === mode.valeur}
+                    onChange={() => modifier("modeRetrait", mode.valeur)}
+                  />
+                  <span className="text-sm">{mode.libelle}</span>
+                </label>
+              ))}
+            </fieldset>
+
+            {formulaire.modeRetrait === VALEUR_LIVRAISON && (
+              <label className="form-control">
+                <span className="mb-1 text-sm font-medium">
+                  Frais de livraison (Ar)
+                </span>
+                <input
+                  type="number"
+                  min={0}
+                  className={`input input-bordered w-full ${
+                    erreurs.fraisLivraison ? "input-error" : ""
+                  }`}
+                  placeholder="0"
+                  value={formulaire.fraisLivraison}
+                  onChange={(e) =>
+                    modifier("fraisLivraison", Number(e.target.value) || 0)
+                  }
+                />
+                {erreurs.fraisLivraison && (
+                  <span className="mt-1 text-xs text-error">
+                    {erreurs.fraisLivraison}
+                  </span>
+                )}
+              </label>
+            )}
+
+            <label className="form-control">
+              <span className="mb-1 text-sm font-medium">
+                Remarques (facultatif)
+              </span>
+              <textarea
+                className="textarea textarea-bordered h-24 w-full"
+                placeholder="Horaires, contraintes d'installation…"
+                value={formulaire.remarques}
+                onChange={(e) => modifier("remarques", e.target.value)}
+              />
+            </label>
+
+            <label className="flex cursor-pointer items-start gap-3">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-primary checkbox-sm mt-0.5"
+                checked={formulaire.accepteConditions}
+                onChange={(e) =>
+                  modifier("accepteConditions", e.target.checked)
+                }
+              />
+              <span className="text-sm">
+                J'accepte les conditions de location et je m'engage à restituer
+                le matériel en bon état (caution demandée à la remise).
+              </span>
+            </label>
+            {erreurs.accepteConditions && (
+              <span className="text-xs text-error">
+                {erreurs.accepteConditions}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <ResumeTarif totaux={totaux} periode={periode}>
+          <button
+            type="submit"
+            className="btn btn-primary btn-block"
+            disabled={envoiEnCours}
+          >
+            {envoiEnCours && (
+              <span className="loading loading-spinner loading-sm" />
+            )}
+            Confirmer et payer l'acompte
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={() => navigate("/panier")}
+          >
+            Retour au panier
+          </button>
+        </ResumeTarif>
+      </form>
+    </div>
+  );
+}
+
+
+// // Client/pages/FormulaireReservation.jsx
+// // Étape 2 : informations de l'événement, puis création de la réservation.
+// import { useMemo, useState } from "react";
+// import { Navigate, useNavigate } from "react-router-dom";
+// import { Truck } from "lucide-react";
+// import { useAuth } from "../../contexts/AuthContext";
+// import { useToast } from "../../contexts/ToastContext";
+// import { ReservationService } from "../../data/reservationService";
+// import EtapesReservation from "../components/commun/EtapesReservation";
+// import MessageErreur from "../components/commun/MessageErreur";
+// import ResumeTarif from "../components/panier/ResumeTarif";
+// import { usePanier } from "../contexts/PanierContext";
+// import useDisponibilites from "../hooks/useDisponibilites";
+// import { MODES_RETRAIT } from "../utils/constantes";
+// import { construireReservation } from "../utils/construireReservation";
+// import { evaluerLigne, ligneBloquante } from "../utils/disponibilite";
+// import { extraireMessageErreur } from "../utils/erreurs";
+// import { sauvegarderInfosPaiement } from "../utils/sessionPaiement";
+
+// const VALEUR_LIVRAISON =
+//   MODES_RETRAIT.find((m) => m.valeur === "LIVRAISON")?.valeur ?? "LIVRAISON";
+
+// export default function FormulaireReservation() {
+//   const navigate = useNavigate();
+//   const toast = useToast();
+//   const { user } = useAuth();
+//   const { lignes, periode, totaux, viderPanier } = usePanier();
+//   const disponibilites = useDisponibilites(periode);
+
+//   const [formulaire, setFormulaire] = useState({
+//     lieuEvenement: "",
+//     modeRetrait: MODES_RETRAIT[0].valeur,
+//     fraisLivraison: 0,
+//     remarques: "",
+//     accepteConditions: false,
+//   });
+//   const [erreurs, setErreurs] = useState({});
+//   const [envoiEnCours, setEnvoiEnCours] = useState(false);
+
+//   const actionLocataire = useMemo(() => {
+//     if (!lignes?.length) return "materiel";
+//     const aUnPack = lignes.some((l) => l.codePack);
+//     const aPlusieurs = lignes.length > 1;
+//     if (aUnPack && !aPlusieurs) return "pack";
+//     if (aUnPack && aPlusieurs) return "personnalise";
+//     return "materiel";
+//   }, [lignes]);
+
+//   // if (lignes.length === 0 || !periodeValide) {
+//   //   return <Navigate to="/panier" replace />;
+//   // }
+
+//   const modifier = (champ, valeur) => {
+//     setFormulaire((prev) => ({ ...prev, [champ]: valeur }));
+//     setErreurs((prev) => ({ ...prev, [champ]: undefined }));
+//   };
+
+//   const valider = () => {
+//     const resultat = {};
+//     if (!formulaire.lieuEvenement.trim()) {
+//       resultat.lieuEvenement = "Indiquez le lieu de l'événement.";
+//     }
+//     if (!formulaire.accepteConditions) {
+//       resultat.accepteConditions =
+//         "Vous devez accepter les conditions de location.";
+//     }
+//     if (
+//       formulaire.modeRetrait === VALEUR_LIVRAISON &&
+//       (formulaire.fraisLivraison == null || formulaire.fraisLivraison < 0)
+//     ) {
+//       resultat.fraisLivraison = "Indiquez des frais de livraison valides.";
+//     }
+//     if (!user?.idUser) {
+//       resultat.global = "Session utilisateur introuvable. Reconnectez-vous.";
+//     }
+//     setErreurs(resultat);
+//     return Object.keys(resultat).length === 0;
+//   };
+
+//   const versPaiement = (num) => {
+//     navigate("/paiement", {
+//       state: {
+//         numReservation: num,
+//         telephone: user.telephone
+//       },
+//     });
+//   };
+
+//   const soumettre = async (e) => {
+//     e.preventDefault();
+//     if (!valider()) return;
+
+//     if (
+//       lignes.some((l) => ligneBloquante(evaluerLigne(disponibilites.obtenir, l)))
+//     ) {
+//       toast.error(
+//         "Certains articles ne sont plus disponibles. Revenez au panier.",
+//       );
+//       navigate("/panier");
+//       return;
+//     }
+
+//     setEnvoiEnCours(true);
+//     const payload = construireReservation({
+//       idUser: user.idUser,
+//       lignes,
+//       periode,
+//       formulaire,
+//       actionLocataire,
+//     });
+
+//     console.log(" DATA RESERVATION: ", payload);
+//     try {
+//       const reservation = await ReservationService.create(payload);
+//       console.log("Reservation crée: ", reservation)
+//       viderPanier();
+//       if (!reservation.numReservation) {
+//         toast.info(
+//           "Réservation enregistrée. Retrouvez-la dans votre profil.",
+//         );
+//         navigate("/profil", { replace: true });
+//         return;
+//       }
+//       sauvegarderInfosPaiement(reservation.numReservation, {
+//         acompte: totaux.acompte,
+//         totalLocation: totaux.totalLocation,
+//         totalCaution: totaux.totalCaution,
+//       });
+//       toast.info("Réservation créée. Passez au paiement de l'acompte.");
+//       versPaiement(reservation.numReservation)
+//     } catch (erreur) {
+//       console.log("Echec création :", erreur);
+//       toast.error(
+//         extraireMessageErreur(
+//           erreur,
+//           "La réservation n'a pas pu être créée. Vérifiez les disponibilités et réessayez.",
+//         ),
+//       );
+//     } finally {
+//       setEnvoiEnCours(false);
+//     }
+//   };
+
+//   return (
+//     <div className="space-y-6">
+//       <EtapesReservation etapeActive={2} />
+//       <MessageErreur
+//         message={disponibilites.erreur}
+//         onReessayer={disponibilites.rafraichir}
+//       />
+
+//       <form onSubmit={soumettre} className="grid gap-6 lg:grid-cols-[1fr_22rem]">
+//         <div className="card card-border bg-base-100">
+//           <div className="card-body gap-4">
+//             <h1 className="card-title">Votre événement</h1>
+
+//             {erreurs.global && (
+//               <div className="alert alert-error text-sm">{erreurs.global}</div>
+//             )}
+
+//             <label className="form-control">
+//               <span className="mb-1 text-sm font-medium">
+//                 Lieu de l'événement *
+//               </span>
+//               <input
+//                 className={`input input-bordered w-full ${
+//                   erreurs.lieuEvenement ? "input-error" : ""
+//                 }`}
+//                 placeholder="Ex : Salle des fêtes, Ivato"
+//                 value={formulaire.lieuEvenement}
+//                 onChange={(e) => modifier("lieuEvenement", e.target.value)}
+//               />
+//               {erreurs.lieuEvenement && (
+//                 <span className="mt-1 text-xs text-error">
+//                   {erreurs.lieuEvenement}
+//                 </span>
+//               )}
+//             </label>
+
+//             <fieldset className="space-y-2">
+//               <legend className="mb-1 flex items-center gap-1 text-sm font-medium">
+//                 <Truck className="size-4" /> Mode de récupération
+//               </legend>
+//               {MODES_RETRAIT.map((mode) => (
+//                 <label
+//                   key={mode.valeur}
+//                   className="flex cursor-pointer items-center gap-3 rounded-box border border-base-300 p-3"
+//                 >
+//                   <input
+//                     type="radio"
+//                     name="modeRetrait"
+//                     className="radio radio-primary radio-sm"
+//                     checked={formulaire.modeRetrait === mode.valeur}
+//                     onChange={() => modifier("modeRetrait", mode.valeur)}
+//                   />
+//                   <span className="text-sm">{mode.libelle}</span>
+//                 </label>
+//               ))}
+//             </fieldset>
+
+//             {/* ✅ Frais de livraison visibles uniquement si LIVRAISON */}
+//             {formulaire.modeRetrait === VALEUR_LIVRAISON && (
+//               <label className="form-control">
+//                 <span className="mb-1 text-sm font-medium">
+//                   Frais de livraison (Ar)
+//                 </span>
+//                 <input
+//                   type="number"
+//                   min={0}
+//                   className={`input input-bordered w-full ${
+//                     erreurs.fraisLivraison ? "input-error" : ""
+//                   }`}
+//                   placeholder="0"
+//                   value={formulaire.fraisLivraison}
+//                   onChange={(e) =>
+//                     modifier("fraisLivraison", Number(e.target.value) || 0)
+//                   }
+//                 />
+//                 {erreurs.fraisLivraison && (
+//                   <span className="mt-1 text-xs text-error">
+//                     {erreurs.fraisLivraison}
+//                   </span>
+//                 )}
+//               </label>
+//             )}
+
+//             <label className="form-control">
+//               <span className="mb-1 text-sm font-medium">
+//                 Remarques (facultatif)
+//               </span>
+//               <textarea
+//                 className="textarea textarea-bordered h-24 w-full"
+//                 placeholder="Horaires, contraintes d'installation…"
+//                 value={formulaire.remarques}
+//                 onChange={(e) => modifier("remarques", e.target.value)}
+//               />
+//             </label>
+
+//             <label className="flex cursor-pointer items-start gap-3">
+//               <input
+//                 type="checkbox"
+//                 className="checkbox checkbox-primary checkbox-sm mt-0.5"
+//                 checked={formulaire.accepteConditions}
+//                 onChange={(e) =>
+//                   modifier("accepteConditions", e.target.checked)
+//                 }
+//               />
+//               <span className="text-sm">
+//                 J'accepte les conditions de location et je m'engage à restituer
+//                 le matériel en bon état (caution demandée à la remise).
+//               </span>
+//             </label>
+//             {erreurs.accepteConditions && (
+//               <span className="text-xs text-error">
+//                 {erreurs.accepteConditions}
+//               </span>
+//             )}
+//           </div>
+//         </div>
+
+//         <ResumeTarif totaux={totaux} periode={periode}>
+//           <button
+//             type="submit"
+//             className="btn btn-primary btn-block"
+//             disabled={envoiEnCours}
+//           >
+//             {envoiEnCours && (
+//               <span className="loading loading-spinner loading-sm" />
+//             )}
+//             Confirmer et payer l'acompte
+//           </button>
+//           <button
+//             type="button"
+//             className="btn btn-ghost btn-sm"
+//             onClick={() => navigate("/panier")}
+//           >
+//             Retour au panier
+//           </button>
+//         </ResumeTarif>
+//       </form>
+//     </div>
+//   );
+// }

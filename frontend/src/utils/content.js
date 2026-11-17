@@ -18,7 +18,10 @@ import {
   PackageCheck,
   PackageOpen,
   Package,
-  Tags
+    Calendar,
+    Tags,
+    UserCircle,
+    Settings,
 } from 'lucide-react';
 
 export const BRAND = {
@@ -37,7 +40,12 @@ export const TITRES = {
 
 export const NAV_LINKS_BACKS = [
   {
-    items: [{ to: "/admin/", label: "Tableau de bord", icon: LayoutDashboard, end: true }],
+    title: "Dashboard",
+    items: [
+      { to: "/admin/", label: "Tableau de bord", icon: LayoutDashboard, end: true },
+      { to: "/admin/calendrier", label: "Calendrier", icon: Calendar },
+      // { to: "/admin/notifications", label: "Notifications", icon: Bell }
+    ],
   },
   {
     title: "Opérations",
@@ -50,23 +58,27 @@ export const NAV_LINKS_BACKS = [
   {
     title: "Catalogue",
     items: [
+      { to: "/admin/categories", label: "Catégories", icon: Tags },
       { to: "/admin/materiels", label: "Matériel", icon: Boxes },
       { to: "/admin/packs", label: "Packs", icon: Package },
-      { to: "/admin/categories", label: "Catégories", icon: Tags },
     ],
   },
   {
     title: "Compte",
-    items: [{ to: "/admin/notifications", label: "Notifications", icon: Bell }],
+    items: [
+      { to: "/admin/users", label: "Utilisateur", icon: UserCircle },
+      // { to: "/admin/config", label: "Paramètre", icon: Settings },
+    ],
   },
 ];
-
 
 // Les 4 menus du site
 export const NAV_LINKS = [
   { to: '/', label: 'Accueil', end: true },
-  { to: '/reservation', label: 'Réservation' },
-  { to: '/information', label: 'A propos' },
+  { to: '/reservation', label: 'Catalogue' },
+  { to: '/information', label: 'À propos de' },
+  { to: '/packs', label: "Pack prêts à l'emploi" },
+  { to: '/materiels', label: 'Matériels' },
   { to: '/aide', label: 'Aide' },
 ];
 

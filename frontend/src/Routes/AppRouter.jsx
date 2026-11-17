@@ -5,6 +5,7 @@ import ClientRoute from './ClientRoute';
 import Login from '../layouts/Login';
 import ProtectLogin from './ProtectLogin';
 import NotFound from '../layouts/NotFound';
+import ClientProviders from './ClientProviders';
 
 
 const AppRoutes = createBrowserRouter([
@@ -18,7 +19,11 @@ const AppRoutes = createBrowserRouter([
     },
     {
         path: '/*',
-        element: <ClientRoute />
+        element: (
+            <ClientProviders>
+              <ClientRoute />
+            </ClientProviders>
+        ),
     },
     { 
         path: '/admin/*', 

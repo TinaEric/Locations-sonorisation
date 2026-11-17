@@ -11,16 +11,23 @@ import { ItemService } from "../../data/ItemService";
 
 const EMPTY = {  etatItem: "bon", statutItem: "disponible", emplacementItem: "" };
 
-export default function CreateItem({ materiel, onClose, onChanged }) {
+export default function CreateItem({ materiel, onClose, onChanged , item = null}) {
   const toast = useToast();
-  const [open, setOpen] = useState(!!materiel);
   const [form, setForm] = useState({  etatItem: "bon", statutItem: "disponible", emplacementItem: "" });
   const [busy, setBusy] = useState(false);
+  
   const { data, loading, error, reload } = useFetch(
     () => (materiel ? materielService.detail(materiel.CodeMateriel) : Promise.resolve([])),
     [materiel?.CodeMateriel]
   );
 
+  useEffect(() => {
+    if (item){
+      setForm(item)
+    }else{
+      setForm({  etatItem: "bon", statutItem: "disponible", emplacementItem: "" })
+    }
+  },[])
   const items = asList(data?.items || []);
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
@@ -39,34 +46,38 @@ export default function CreateItem({ materiel, onClose, onChanged }) {
     }
   };
 
-  const save = (e) => {
+  const save = async (e) => {
     e.preventDefault();
-    const payload = { ...form, codeMateriel: materiel.CodeMateriel };
+    const payload = { 
+      emplacementItem: form.emplacementItem,
+      etatItem: form.etatItem,
+      statutItem: form.statutItem,
+      codeMateriel: materiel.CodeMateriel
+     };
     console.log("New item: ", payload)
-    run(
-      () => (ItemService.create(payload)),
-       "Exemplaire ajouté",
-      () => setForm(EMPTY)
-    );
-    onClose()
+     
+    try {
+      if (form.numeroSerie) await ItemService.update(form.numeroSerie, payload);
+      else await ItemService.create(payload);
+      const message = form.numeroSerie ? `Item '${form.numeroSerie}' modifié avec succès ` : "Un Item créé avec succès";
+      toast.success(message);
+      setForm(null);
+      onClose()
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setBusy(false);
+      onClose()
+    }
   };
 
   return (
     <Modal open={!!materiel} wide title={`Exemplaires — ${materiel?.designation ?? ""}`} onClose={onClose}>
-      {/* <div className="mb-3 flex justify-end">
-        {!form && (
-          <button className="btn btn-primary btn-sm" onClick={() => setForm({ ...EMPTY })}>
-            <Plus size={16} /> Ajouter un exemplaire
-          </button>
-        )}
-      </div> */}
-{/* 
-      {form && ( */}
         <form onSubmit={save} className="mb-4 grid gap-3 rounded-box border border-base-300 p-4 sm:grid-cols-4">
-          {/* <label className="form-control">
-            <span className="label-text mb-1">N° de série *</span>
-            <input required className="input input-bordered input-sm w-full" value={form.numeroSerie} onChange={set("numeroSerie")} />
-          </label> */}
+          <label className="form-control">
+            <span className="label-text mb-1">N° de série</span>
+            <input disabled className="input input-bordered font-bold input-sm w-full" value={form.numeroSerie ?? "Générer par le système"} onChange={set("numeroSerie")} />
+          </label>
           <label className="form-control">
             <span className="label-text mb-1">État</span>
             <select className="select select-bordered select-sm w-full" value={form.etatItem} onChange={set("etatItem")}>
@@ -97,47 +108,6 @@ export default function CreateItem({ materiel, onClose, onChanged }) {
             </button>
           </div>
         </form>
-      {/* )} */}
-
-      {/* <DataState loading={loading} error={error} empty={!items.length} onRetry={reload}>
-        <div className="overflow-x-auto">
-          <table className="table table-sm">
-            <thead>
-              <tr>
-                <th>N° de série</th>
-                <th>État</th>
-                <th>Statut</th>
-                <th>Emplacement</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((it) => (
-                <tr key={it.numeroSerie}>
-                  <td className="font-mono text-xs">{it.numeroSerie}</td>
-                  <td><StatusBadge map={ETAT_ITEM} value={it.etatItem} /></td>
-                  <td><StatusBadge map={STATUT_ITEM} value={it.statutItem} /></td>
-                  <td>{it.emplacementItem || "—"}</td>
-                  <td className="text-right whitespace-nowrap">
-                    <button className="btn btn-ghost btn-xs btn-square" onClick={() => setForm({ ...EMPTY, ...it })} aria-label="Modifier">
-                      <Pencil size={14} />
-                    </button>
-                    <button
-                      className="btn btn-ghost btn-xs btn-square text-error"
-                      disabled={busy || it.statutItem === "loue"}
-                      title={it.statutItem === "loue" ? "Exemplaire actuellement loué" : "Supprimer"}
-                      onClick={() => run(() => itemService.remove(it.numeroSerie), "Exemplaire supprimé")}
-                      aria-label="Supprimer"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </DataState> */}
     </Modal>
   );
 }

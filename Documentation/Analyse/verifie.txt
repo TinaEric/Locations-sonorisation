@@ -1,0 +1,70 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DataSource, In, Repository } from 'typeorm';
+import { Materiel } from './entities/materiel.entity.js';
+import { LigneLocation } from '../../location/ligne-location/entities/ligne-location.entity.js';
+import { Reservation } from '../../location/reservation/entities/reservation.entity.js';
+import { ComposantPack } from '../../location/pack/entities/composant-pack.entity.js';
+import { StatutLocation } from '../../location/reservation/enum/enum-location.js';
+import { VerificationSuppressionDto } from './dto/verification-suppression.dto.js';
+
+@Injectable()
+export class MaterielService {
+  constructor(
+    @InjectRepository(Materiel)
+    private readonly matRepos: Repository<Materiel>,
+    private readonly dataSource: DataSource,
+  ) {}
+
+  /**
+   * Vérifie si un matériel peut être supprimé :
+   * - lié à une réservation EN_COURS ou CONFIRMEE (non supprimée)
+   * - inclus dans un pack réservé EN_COURS ou CONFIRMEE (non supprimé)
+   */
+  async verifierLiaisons(codeMateriel: string): Promise<VerificationSuppressionDto> {
+    const materiel = await this.matRepos.findOne({
+      where: { CodeMateriel: codeMateriel, isDelete: 'non' },
+    });
+    if (!materiel) {
+      throw new NotFoundException(`Matériel "${codeMateriel}" introuvable.`);
+    }
+
+    const statutsActifs = [StatutLocation.EN_COURS, StatutLocation.CONFIRMEE];
+
+    // 1) Réservations directes via LigneLocation.materiel
+    const nombreReservations = await this.dataSource
+      .getRepository(LigneLocation)
+      .createQueryBuilder('ll')
+      .innerJoin('ll.reservation', 'res')
+      .where('ll.materiel.CodeMateriel = :codeMateriel', { codeMateriel })
+      .andWhere('res.statutLocation IN (:...statuts)', { statuts: statutsActifs })
+      .andWhere('res.isDelete = :isDelete', { isDelete: 'non' })
+      .select('COUNT(DISTINCT res.numReservation)', 'total')
+      .getRawOne<{ total: string }>()
+      .then((r) => Number(r?.total ?? 0));
+
+    // 2) Packs réservés via ComposantPack.materiel
+    const nombrePacks = await this.dataSource
+      .getRepository(ComposantPack)
+      .createQueryBuilder('cp')
+      .innerJoin('cp.materiel', 'm')
+      .innerJoin('cp.pack', 'pack')
+      .innerJoin('pack.ligneLocations', 'll')       // LigneLocation qui pointe vers ce pack
+      .innerJoin('ll.reservation', 'res')
+      .where('m.CodeMateriel = :codeMateriel', { codeMateriel })
+      .andWhere('pack.isDelete = :isDelete', { isDelete: 'non' })
+      .andWhere('res.statutLocation IN (:...statuts)', { statuts: statutsActifs })
+      .andWhere('res.isDelete = :isDelete', { isDelete: 'non' })
+      .select('COUNT(DISTINCT res.numReservation)', 'total')
+      .getRawOne<{ total: string }>()
+      .then((r) => Number(r?.total ?? 0));
+
+    const autorise = nombreReservations === 0 && nombrePacks === 0;
+
+    return {
+      nombreReservations,
+      nombrePacks,
+      statut: autorise ? 'autorise' : 'non_autorise',
+    };
+  }
+}

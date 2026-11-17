@@ -1,40 +1,68 @@
-import api  from './Api';
-import { verifierReponse } from './verifierReponse';
+import { api } from "./Api";
+import { verifierReponse } from "./verifierReponse";
 
-export const materielDispo = async (data) => {
-    console.log("DATA: ", data)
-    return await verifierReponse(() => api.post('/reservation/materiels-disponibles',data));
-};
+const normalizeDateRange = (data = {}) => ({
+  dateDebut: data.dateDebut,
+  dateFin: data.dateFin,
+  ...(data.categoriePack || data.type ? { categoriePack: data.categoriePack ?? data.type } : {}),
+});
 
-export const packsDisponibles = async (data) => {
-    return await verifierReponse(() => api.post('/pack/disponibles', data));
-};
+export const materielDispo = async (data) =>
+  await verifierReponse(() => api.post("/reservation/materiels-disponibles", normalizeDateRange(data)));
 
-export const listePacks = async () => {
-    return await verifierReponse(() => api.get('/pack'));
-};
+export const packsDisponibles = async (data) =>
+  await verifierReponse(() => api.post("/pack/disponibles", normalizeDateRange(data)));
 
-export const createReservation = async (data) => {
-    return await verifierReponse(() => api.post('/reservation/creer',data));
-};
-
-export const listeReservation = async (data) => {
-    return await verifierReponse(() => api.post('/reservation/',data));
-};
+export const getPackDetail = async (id) => await verifierReponse(() => api.get(`/pack/${id}`));
 
 export const ReservationService = {
-    list: async (params) => await verifierReponse(() => api.get("/reservation", params)),
-    detail: async (id) => await verifierReponse(() => api.get(`/reservation/${id}`)),
-    create: async (data) =>  await verifierReponse(() => api.post('/reservation', data)),
-    update: async (id, data) => await verifierReponse(() => api.patch(`/reservation/${id}`, data)),
-    remove: async (id) =>  await verifierReponse(() => api.delete(`/reservation/${id}`)),
-    setStatut: async (id, data) =>  await verifierReponse(() =>  api.patch(`/reservation/${id}`,  data)),
-    ajouterPaiement: (id, data) => api.post(`/reservations/${id}/paiements`, data),
-  };
+  list: async (params) => await verifierReponse(() => api.get("/reservation", { params })),
+  detail: async (id) => await verifierReponse(() => api.get(`/reservation/${id}`)),
+  create: async (data) => await verifierReponse(() => api.post("/reservation", data)),
+  update: async (id, data) => await verifierReponse(() => api.patch(`/reservation/${id}`, data)),
+  remove: async (id) => await verifierReponse(() => api.delete(`/reservation/${id}`)),
+  setStatut: async (id, statutLocation) =>
+    await verifierReponse(() => api.patch(`/reservation/${id}/statut`, { statutLocation })),
+  verifierDisponibilite: async (id) =>
+    await verifierReponse(() => api.get(`/reservation/${id}/verifieDisponibilite`)),
   
-//   export const reservationService = {
-//     list: (params) => api.get("/reservations", params),
-//     get: (id) => api.get(`/reservations/${id}`),
-//     setStatut: (id, statutLocation) => api.patch(`/reservations/${id}`, { statutLocation }),
-//     ajouterPaiement: (id, data) => api.post(`/reservations/${id}/paiements`, data),
-//   };
+  materielDispo : async (data) =>
+    await verifierReponse(() => api.post("/reservation/materiels-disponibles", normalizeDateRange(data))),
+  
+  packsDisponibles: async (data) => {
+    const payload = {
+      dateDebut: data.dateDebut,
+      dateFin: data.dateFin,
+    };
+    return verifierReponse(() => api.post("/pack/disponibles/confirmes", payload));
+  },
+  accepter: async (id, payload) =>
+    await verifierReponse(() => api.patch(`/reservation/${id}/accepter`, payload)),
+
+  refuser: async (id, motif) =>
+    await verifierReponse(() => api.patch(`/reservation/${id}/refuser`, { motif })),
+
+  annuler: async (id, motif) =>
+    await verifierReponse(() => api.patch(`/reservation/${id}/annuler`, { motif })),
+
+  marquerPrete: async (id) =>
+    await verifierReponse(() => api.patch(`/reservation/${id}/prete`)),
+
+  enregistrerSortie: async (id, payload) =>
+    await verifierReponse(() => api.patch(`/reservation/${id}/sortie`, payload)),
+
+  enregistrerRetour: async (id, payload) =>
+    await verifierReponse(() => api.patch(`/reservation/${id}/retour`, payload)),
+
+  cloturer: async (id) =>
+    await verifierReponse(() => api.patch(`/reservation/${id}/cloturer`)),
+
+  itemsDisponibles: async (id) =>
+    await verifierReponse(() => api.get(`/reservation/${id}/items-disponibles`)),
+
+  creerMouvements: async (numReservation, ligneId, payload) =>
+    await verifierReponse(() => api.post(`/reservation/${numReservation}/lignes/${ligneId}/mouvements`, payload)),
+
+  ajouterPaiement: async (data) =>
+    await verifierReponse(() => api.post(`/paiement`, data)),
+};

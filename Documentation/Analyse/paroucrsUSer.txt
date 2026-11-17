@@ -1,0 +1,114 @@
+
+Cahier des Charges : Parcours Utilisateur Sur-Mesure
+
+Projet : Module de réservation en ligne pour matériel de sonorisation
+Cible : Clients Experts (DJ, musiciens, organisateurs d'événements, régisseurs)
+
+1. Objectifs du Parcours Sur-Mesure
+
+• Permettre à un professionnel de composer sa configuration de sonorisation pièce par pièce (sans passer par un pack prédéfini).
+• Garantir une vérification de la disponibilité des stocks à l'unité et en temps réel.
+• Automatiser le calcul des tarifs dégressifs selon la durée et les options logistiques.
+
+
+1. L'En-tête (Header)
+
+• Logo de l'entreprise (ex: RL PRO Fianarantsoa).
+• Menu de navigation minimal : Accueil | Tarifs & Packs | Catalogue Pro | Comment ça marche | Contact.
+• Zone d'action rapide : Un bouton visible "Mon Panier" et un bouton "Mon Compte" (pour les pros qui ont déjà leurs informations enregistrées).
+
+2. Le Titre Principal (La Promesse)
+
+Un message clair qui indique immédiatement au visiteur s'il est au bon endroit :
+"Louez le meilleur système de sonorisation pour vos événements à Fianarantsoa."Du mariage intime au concert en plein air, trouvez le matériel idéal en quelques clics.
+ Le Premier Filtre (La Règle Métier "Disponibilité")
+
+
+3. Le Premier Filtre (La Règle Métier "Disponibilité")
+Pour éviter que l'utilisateur ne cherche du matériel pour rien, le site affiche un moteur de recherche central sous forme de barre horizontale :
+• 📅 Date de début (Sélecteur de date et heure)
+• 📅 Date de fin (Sélecteur de date et heure)
+• 📍 Lieu de l'événement (Menu déroulant : Fianarantsoa Centre, Haute Ville, Ambalavao, Manakara, Autre... pour estimer les frais de transport).
+• 🔘 Bouton : "Vérifier la disponibilité"
+
+4- La Séparation des 2 Parcours Utilisateurs (Le Cœur de la Page)
+
+C'est ici que l'on sépare les deux types de profils grâce à deux grands blocs visuels côte à côte :
+
+📦 Bloc Gauche : Profil 1 (Non-Expert / Particulier)
+
+• Titre : "Je cherche une solution simple"
+• Bouton : [Voir les Packs Clés en Main]
+• Texte d'aide : Idéal pour les mariages, anniversaires, fêtes familiales et conférences. Tout est inclus (enceintes, micros, câbles) et prêt à l'emploi selon votre nombre d'invités.
+
+🛠️ Bloc Droite : Profil 2 (Expert / Professionnel)
+
+• Titre : "Je compose ma fiche technique"
+• Bouton : [Accéder au Catalogue à la Carte]
+
+• Texte d'aide : Réservé aux DJ, musiciens et régisseurs. Choisissez vos références exactes pièce par pièce (Pioneer, Shure, Yamaha) avec gestion des stocks en temps réel.
+
+5. Les Éléments de Réassurance (Le Bas de Page / Footer)
+
+Trois ou quatre icônes simples pour instaurer la confiance avant même que l'utilisateur ne commence sa réservation :
+• 📱 Paiement Mobile Sécurisé : Logos Mvola, Orange Money, Airtel Money bien visibles.
+• 🛠️ Assistance 24h/24 : "Un technicien joignable par téléphone pendant toute la durée de votre événement."
+🚗 Option Livraison : "Retrait gratuit au dépôt ou livraison et montage complets sur le lieu de votre fête."
+
+
+
+
+
+
+
+Le filtre de disponibilité (les dates) et la séparation des deux parcours (Packs vs À la carte) sont intimement liés. 
+
+1. Le Filtre de Disponibilité est le "Cerveau" du site
+
+Lorsque le client remplit la barre de filtrage (Date de début, Date de fin, Lieu) et clique sur "Vérifier la disponibilité", le site calcule l'état du stock de l'entrepôt pour ces dates précises.
+Ce filtre agit comme une clé qui ouvre les deux parcours de manière intelligente.
+
+2. La relation directe avec les deux parcours
+Une fois les dates enregistrées par le filtre, voici comment il influence simultanément les deux parcours :
+
+🔄 Relation avec le Parcours 1 (Les Packs / Non-Experts)
+
+Le filtre va masquer ou adapter les packs proposés :
+• Si un pack nécessite 2 enceintes spécifiques et que ces enceintes sont déjà louées pour ce week-end-là, le pack complet passera automatiquement en statut "Indisponible" ou basculera sur une alternative (comme vu dans le cahier des charges).
+
+🔄 Relation avec le Parcours 2 (À la carte / Experts)
+
+Le filtre va modifier dynamiquement les compteurs de quantité de chaque matériel :
+• Si l'expert entre dans le catalogue à la carte, il verra par exemple : "Micro Shure SM58 : 4 disponibles pour vos dates" (alors que le loueur en possède peut-être 10 au total, mais 6 sont déjà pris ailleurs).
+
+
+Que se passe-t-il si le client ignore le filtre au départ ?
+
+Si le client clique directement sur un parcours (par exemple, il clique sur "Voir les packs") sans remplir les dates :
+1. Le site le laisse entrer pour lui permettre de découvrir le catalogue et les prix de base.
+2. Règle Métier Obligatoire : Dès qu'il voudra cliquer sur "Réserver" ou "Ajouter au panier", une fenêtre surgissante (Pop-up) bloquera l'action en disant : "Veuillez indiquer les dates de votre événement pour vérifier si ce matériel est libre."
+
+
+	LES boutons dans la page d'accueil:
+
+Cas 1 : Clic sur le bouton « Voir les Packs Clés en Main » (Profil 1)
+
+Le système vérifie d'abord si la barre de filtre (dates et jauge) a été remplie :
+• Si les dates SONT saisies : Le système redirige l'utilisateur vers la page Catalogue des Packs. Les packs s'affichent de manière personnalisée : le pack correspondant exactement à sa jauge est mis en avant avec une mention « Idéal pour votre événement », et le bouton d'ajout au panier est actif.
+• Si les dates NE SONT PAS saisies : Le système n'bloque pas le client, mais ouvre une fenêtre surgissante (Pop-up) au centre de l'écran :
+	• « Pour voir les tarifs exacts et le matériel disponible, veuillez indiquer rapidement la date de votre fête et le nombre d'invités. »
+	• Dès que le client valide la pop-up, le catalogue des packs s'ouvre.
+
+🛠️ Cas 2 : Clic sur le bouton « Accéder au Catalogue à la Carte » (Profil 2)
+
+Ce parcours est dédié aux experts (DJ, techniciens) qui ont besoin d'une liberté totale :
+• Si les dates SONT saisies : Le système redirige vers la Boutique Pro à la carte. Le moteur de stock calcule instantanément les quantités restantes pour chaque référence (ex: « Console Pioneer DJM-A9 : 2 restantes pour vos dates »).
+• Si les dates NE SONT PAS saisies : Le système affiche l'intégralité du catalogue pour permettre au professionnel de consulter les prix de base. Cependant, le bouton « Ajouter au panier » est désactivé et remplacé par un message : « Saisissez vos dates pour réserver ce matériel ».
+
+🔎 Cas 3 : Clic sur le bouton central « Vérifier la disponibilité »
+
+Ce bouton valide la barre de filtre globale :
+1. Analyse des données : Le système interroge la base de données pour vérifier l'état du parc de matériel à Fianarantsoa entre la date A et la date B.
+2. Mise en mémoire : Il enregistre les dates, le lieu et la jauge dans la session du navigateur du client (pour ne plus lui redemander).
+3. Animation visuelle : Un court écran de chargement (Loader) apparaît pendant 1 à 2 secondes pour simuler la recherche.
+4. Défilement automatique (Scrolldown) : La page descend automatiquement d'un écran pour amener les yeux du client directement sur la sélection des parcours (Packs ou À la carte) qui sont désormais configurés avec ses dates.

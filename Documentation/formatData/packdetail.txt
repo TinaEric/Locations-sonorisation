@@ -1,0 +1,71 @@
+{
+    "codePack": "PACK0002",
+    "libelle": "vrai pack",
+    "description": "mariaaageeeeee",
+    "categoriePack": null,
+    "capaciteMin": null,
+    "capaciteMax": null,
+    "typeLieu": null,
+    "usages": null,
+    "puissanceTotal": null,
+    "tarifJournalier": "80000.00",
+    "prixCaution": "40000.00",
+    "statutPack": "actif",
+    "photos": null,
+    "dateCreation": "2026-11-02T09:46:02.468Z",
+    "dateModification": "2026-11-02T15:07:06.803Z",
+    "composants": [
+        {
+            "idComposant": 66,
+            "quantite": 1,
+            "materiel": {
+                "CodeMateriel": "SON0002-MAT0002",
+                "designation": "Enceinte active JBL 15 pouces",
+                "marque": "JBL",
+                "detailTechnique": "1000W, Bluetooth, entrée XLR",
+                "imageURL": "https://exemple.com/jbl-eon615.jpg",
+                "prixLocation": "2500.00",
+                "prixCaution": "120.00",
+                "isDelete": "non",
+                "quantiteTotale": 2,
+                "quantiteReservee": 0,
+                "quantiteDisponible": 2
+            }
+        },
+        {
+            "idComposant": 68,
+            "quantite": 1,
+            "materiel": {
+                "CodeMateriel": "ECL0003-MAT0006",
+                "designation": "Projecteur LED PAR 64",
+                "marque": "Chauvet",
+                "detailTechnique": "18 LED RGBW 10W, DMX 512, mode automatique",
+                "imageURL": "https://exemple.com/chauvet-par64.jpg",
+                "prixLocation": "30000.00",
+                "prixCaution": "15000.00",
+                "isDelete": "non",
+                "quantiteTotale": 0,
+                "quantiteReservee": 0,
+                "quantiteDisponible": 0
+            }
+        },
+        {
+            "idComposant": 69,
+            "quantite": 1,
+            "materiel": {
+                "CodeMateriel": "INS0001-MAT0012",
+                "designation": "Clavier Maitre",
+                "marque": "Oxigène Pro",
+                "detailTechnique": "Clavier MIDI connecté au oridinateur ou expandeur au téléphone ",
+                "imageURL": "d",
+                "prixLocation": "50004.00",
+                "prixCaution": "20000.00",
+                "isDelete": "non",
+                "quantiteTotale": 0,
+                "quantiteReservee": 0,
+                "quantiteDisponible": 0
+            }
+        }
+    ],
+    "isDelete": "non"
+}

@@ -1,0 +1,20 @@
+Je vous demande de m'aider à terminer mon projet qui concerne un plateforme web pour la gestion automatisée des locations de matériels de sonorisation. Je suis un développeur backend avec Nest JS (service API) et le backend est déjà fonctionnel prêt à l'emploi (mais vous pouvez ajouter des supplémentaires). Ce projet constitue une interface pour le public (coté client) et un interface pour le back-office. L'interface pour le back office est déjà presque terminé. j'utilise React avec tailwind css et daisyui avec lucide react (icone) et vous devez adapter votre code à mon code présent, avec la structure clair (composant réutilisable, nom du fonction ou variable clair et en Français).
+
+
+Structure de dossier dans /src/ que vous devez adapter:
+- /data/Api.js qui gere la communication au backend
+- /data/xxxService: pour l'appel des fonction backend (voir la structure du code dans packService ou materielService) 
+- /contexts: AuthContext,toastContext(Ex: const toast = useToast(), toast.warning("mesg"), toast.info(""), taost.error("")
+- /layouts/: LayoutAdmin(fini), Login partagé pour le client et admin(fini) LayaoutClient(non fini), NotFound.jsx(fini)
+- /Routes/: AppRoute pour la gestion de route principal pour client et admin, AdminRoute(fini), ClientRoute(non fini),...
+- Autre dossier: /images/, /components/ pour le composants partagés
+- /Admin: dossier pour le back office (fini)
+- /Client: c'est ici que vous avez travailler, structurer bien les fichiers là-dedans(contexts, components, pages,...), separer par module( catalogue, reservation, paiement, profil, panier,...)
+
+
+le parcours client doit être simple : découvrir les offres, choisir les dates, vérifier la disponibilité, composer le panier, payer l’acompte et recevoir une confirmation. Chaque matériel possède son calendrier de disponibilité par mois en temps réel.
+La page d’accueil doit permettre au client de comprendre immédiatement ce que la plateforme propose. Placer une moteur de recherche rapide pour les matériel: nom, marque, code Matériel ou mot-clé, Champ date Début et fin. Le système affiche tous les matériel et les packs avec son état de disponibilité sur la date choisi avec un bouton voir sa calendrier de disponibilité. Pour le paiement, Créer un page statique pour simuler Mvola (yas).
+Le client peut consulter le détail d'un matériel ou pack avec les matériels lié.
+Quand le client clique sur passer reservation dans panier, Le système doit verifier si le client est connecté, si oui passe à la rempli de formulaire de reservation, si non renvoyer la page de connection.
+
+Utiliser les format de données dans le fichier txt ci jointes 

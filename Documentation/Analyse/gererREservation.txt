@@ -1,0 +1,136 @@
+## Description textuelle du cas d’utilisation « Gérer les réservations »
+
+### 1. Identification
+
+- Nom : Gérer les réservations.
+- Acteur principal : Loueur.
+- Objectif : Consulter et traiter les réservations des clients, depuis leur demande jusqu’à la clôture de la location.
+- Périmètre : Back-office de la plateforme de location de sonorisation.
+- Déclencheur : Le loueur accède à la rubrique « Réservations ».
+
+Cette description formalise le fonctionnement discuté : le paiement de l’acompte est nécessaire à la confirmation. Elle ne décrit pas le back-office interne de Planet Sono.
+
+### 2. Préconditions
+
+- Le loueur est authentifié et autorisé à gérer les réservations.
+- Les matériels, les packs et les règles de location sont enregistrés.
+- Les réservations des clients sont accessibles dans le système.
+
+### 3. Scénario nominal
+
+Le scénario prévoit une validation préalable de la demande par le loueur, suivie d’une confirmation après paiement de l’acompte.
+
+1. Le loueur accède à la rubrique « Réservations ».
+   - Le système affiche la liste des réservations avec leur référence, le client, les dates, le statut et l’état du paiement.
+
+2. Le loueur recherche ou filtre les réservations par date, client ou statut.
+   - Le système affiche les réservations correspondant aux critères.
+
+3. Le loueur sélectionne une demande.
+   - Le système affiche ses détails : matériels, packs, quantités, options, dates, montant total, acompte et solde.
+
+4. Le loueur examine la demande et demande la vérification de disponibilité.
+   - Le système vérifie les besoins cumulés des matériels et des composants des packs.
+   - Il signale les éventuels conflits de disponibilité.
+
+5. Le loueur accepte la demande.
+   - Le système enregistre l’acceptation.
+   - Il place la réservation au statut « En attente d’acompte ».
+   - Il crée un blocage temporaire du matériel.
+   - Il communique au client le montant à payer et l’échéance de paiement.
+
+6. Le loueur consulte le suivi du paiement.
+   - Après réception d’une confirmation fiable du paiement de l’acompte, le système passe la réservation au statut « Confirmée ».
+   - Il maintient le blocage du stock pour la période réservée.
+   - Il notifie le client et le loueur.
+
+7. Le loueur ouvre la réservation confirmée pour préparer la location.
+   - Le système affiche la liste des équipements et accessoires à préparer.
+
+8. Le loueur affecte les exemplaires physiques, si ce suivi existe, et indique que le matériel est prêt.
+   - Le système enregistre les affectations et l’état de préparation.
+
+9. Le loueur remet ou livre le matériel, puis enregistre la sortie.
+   - Le système enregistre la date réelle de sortie.
+   - Il passe la réservation au statut « En cours ».
+
+10. Le loueur enregistre le retour du matériel.
+    - Le système enregistre la date réelle de retour.
+    - Il passe la réservation au statut « Retour à contrôler ».
+
+11. Le loueur contrôle les quantités, les accessoires et l’état du matériel, puis saisit le résultat.
+    - Le système enregistre le contrôle.
+    - Il remet les équipements conformes en disponibilité.
+    - Il maintient les équipements endommagés ou nécessitant une intervention indisponibles.
+
+12. Le loueur vérifie le règlement du solde et le traitement des éventuels incidents, puis clôture le dossier.
+    - Le système passe la réservation au statut « Clôturée ».
+    - Il conserve l’historique du dossier.
+
+Le client effectue le paiement hors de l’interface du loueur. Le système reçoit le résultat et met à jour le dossier : le loueur n’a pas à déclarer manuellement un paiement en ligne comme réussi.
+
+### 4. Scénarios alternatifs et exceptions
+
+- A1 — Aucune réservation ne correspond aux filtres :
+  - Le système affiche une liste vide.
+  - Le loueur peut modifier les critères de recherche.
+
+- A2 — Le matériel demandé est indisponible :
+  - Le système signale les éléments concernés.
+  - Le loueur propose une autre période, un remplacement ou refuse la demande.
+  - Toute modification de l’offre doit être acceptée par le client.
+
+- A3 — Le loueur refuse la demande avant confirmation :
+  - Le loueur saisit le motif du refus.
+  - Le système passe la réservation au statut « Refusée ».
+  - Il libère l’éventuel blocage temporaire.
+  - Il informe le client.
+
+- A4 — L’acompte n’est pas reçu avant l’échéance :
+  - Le système passe la réservation au statut « Expirée ».
+  - Il libère le stock temporairement bloqué.
+  - Il informe le client et le loueur.
+
+- A5 — Le paiement échoue :
+  - Le système conserve la réservation en attente jusqu’à son échéance.
+  - Il permet au client d’effectuer une nouvelle tentative de paiement.
+
+- A6 — Le paiement arrive après expiration :
+  - Le système vérifie de nouveau la disponibilité avant toute confirmation.
+  - En cas de conflit, le loueur traite la situation avec le client.
+  - Le paiement doit être régularisé selon la solution retenue.
+
+- A7 — Une modification est demandée après confirmation :
+  - Le loueur saisit la modification proposée.
+  - Le système recalcule la disponibilité, le prix, l’acompte et le solde.
+  - La réservation initiale reste applicable tant que la modification n’est pas acceptée et sécurisée.
+
+- A8 — Une réservation confirmée est annulée :
+  - Le loueur enregistre l’annulation et son motif.
+  - Le système libère les ressources concernées.
+  - Il suit les conséquences financières selon les conditions acceptées.
+
+- A9 — Le retour est incomplet, tardif ou endommagé :
+  - Le loueur enregistre l’incident et les éléments justificatifs.
+  - Le système conserve les équipements concernés indisponibles.
+  - Le dossier reste ouvert tant que les traitements nécessaires ne sont pas terminés.
+
+### 5. Règles de gestion
+
+- L’acceptation de la demande par le loueur ne vaut pas confirmation : l’acompte doit également être reçu.
+- Le blocage avant paiement est temporaire et possède une échéance.
+- La disponibilité est vérifiée sur toute la période de mobilisation du matériel.
+- Les besoins des packs et des matériels à l’unité sont cumulés afin d’éviter les doubles réservations.
+- Une modification des dates, des quantités ou de la composition déclenche une nouvelle vérification de disponibilité et un recalcul du montant.
+- Le statut de réservation et l’état du paiement sont suivis séparément : une réservation confirmée peut avoir un solde restant à payer.
+- Un retour enregistré ne rend pas automatiquement le matériel disponible : le contrôle doit être effectué.
+- Les décisions du loueur, les changements de statut et les opérations financières sont conservés dans l’historique.
+- La clôture exige que le retour, les paiements et les incidents éventuels soient traités.
+
+### 6. Postconditions
+
+- La réservation possède un statut correspondant à sa situation réelle.
+- Les paiements et le solde sont à jour.
+- Les disponibilités des équipements sont cohérentes avec les décisions et les contrôles enregistrés.
+- Le client est informé des changements qui le concernent.
+- L’historique du dossier permet de retrouver les actions réalisées.

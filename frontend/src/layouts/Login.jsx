@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   ArrowLeft, AudioLines, CheckCircle2, CircleAlert, Eye, EyeOff, Lock, Mail, Phone, UserRound,
 } from 'lucide-react';
-import fondLogin from '../images/fondLogin.jpg';
+import fondLogin from '../images/log1.jpg';
 import { BRAND , TITRES} from '../utils/content.js';
 import { inscription, motDePasseOublie } from '../data/UserService.js';
 import { redirectionRouteParRole, useAuth } from "../contexts/AuthContext";
@@ -138,7 +138,7 @@ export default function Login() {
               <ChampText
                 id="telephone"
                 name="telephone"
-                type="tel"
+                type="number"
                 label="Téléphone"
                 icon={Phone}
                 autoComplete="tel"
@@ -198,7 +198,6 @@ export default function Login() {
               </button>
             </p>
           )}
-
           <p className="mt-8 text-center text-xs text-base-content/60">
             <Link to="/aide" className="link">Besoin d’aide ?</Link>
           </p>

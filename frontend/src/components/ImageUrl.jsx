@@ -1,12 +1,12 @@
 import { ImageOff } from "lucide-react";
 import { useState } from "react";
+import { IMAGES_URL } from "../data/Api";
 
-export function ImageUrl({ src, alt, className = "h-12 w-12" }) {
-    const [failed, setFailed] = useState(false);
-    if (!src || failed || src=== null)
+export function ImageUrl({ src, alt, tailleIcone = 18, className = "h-12 w-12 rounded-lg" }) {
+    if (src=== null  || src === "")
       return (
-        <div className={`${className} flex items-center justify-center rounded-lg bg-base-200 text-base-content/40`}>
-          <ImageOff size={18} />
+        <div className={`${className} flex items-center justify-center bg-base-200 text-base-content/40`}>
+          <ImageOff size={tailleIcone} />
         </div>
       );
     return (
@@ -14,8 +14,7 @@ export function ImageUrl({ src, alt, className = "h-12 w-12" }) {
         src={src}
         alt={alt}
         loading="lazy"
-        onError={() => setFailed(true)}
-        className={`${className} rounded-lg object-cover`}
+        className={`${className}  object-cover`}
       />
     );
   }

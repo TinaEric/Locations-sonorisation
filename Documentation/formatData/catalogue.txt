@@ -1,0 +1,221 @@
+RESPONSE DU Backend pour le materiel
+export const categorieService = {
+  list: async () => await verifierReponse(() => api.get("/categorie/arborescence")),
+  packsDisponible:  async (d) => {
+	const data= {
+	  "dateDebut": d.dateDebut,
+  	  "dateFin": d.dateFin
+	}
+	await verifierReponse(() => api.post("/reservation/liste-Materiels")),
+  }
+}
+
+[
+  {
+    "idCategorie": "CAT10001",
+    "libelle": "Sonorisation",
+    "descriptionCategorie": "Tout le materiel audio et sonorisation",
+    "niveau": 1,
+    "statutCategorie": "actif",
+    "idParent": null,
+    "enfants": [
+      {
+        "idCategorie": "CAT20001",
+        "libelle": "Systeme colonne",
+        "descriptionCategorie": "Enceintes colonnes amplifiees",
+        "niveau": 2,
+        "statutCategorie": "actif",
+        "idParent": "CAT10001",
+        "enfants": [],
+        "materiels": [
+          {
+            "CodeMateriel": "CAT20001-MAT0001",
+            "designation": "Systeme colonne RCF ART 715",
+            "marque": "RCF",
+            "detailTechnique": "Enceinte amplifiee 700W RMS, 15 pouces",
+            "imageURL": "756405.jpg",
+            "prixLocation": "45.00",
+            "prixCaution": "300.00"
+          },
+          {
+            "CodeMateriel": "CAT20001-MAT0002",
+            "designation": "Systeme colonne JBL EON 615",
+            "marque": "JBL",
+            "detailTechnique": "Enceinte amplifiee 1000W, 15 pouces",
+            "imageURL": "deadpool-1920x1080.jpg",
+            "prixLocation": "50.00",
+            "prixCaution": "350.00"
+          },
+          {
+            "CodeMateriel": "CAT20001-MAT0003",
+            "designation": "Systeme Console B13 47",
+            "marque": "StanLEy",
+            "detailTechnique": "Grand Console Electirique plus performant",
+            "imageURL": "fJR6o4A.jpg",
+            "prixLocation": "900000.00",
+            "prixCaution": "500000.00"
+          }
+        ]
+      },
+      {
+        "idCategorie": "CAT20002",
+        "libelle": "Enceinte",
+        "descriptionCategorie": "Enceintes passives et actives",
+        "niveau": 2,
+        "statutCategorie": "actif",
+        "idParent": "CAT10001",
+        "enfants": [],
+        "materiels": [
+          {
+            "CodeMateriel": "CAT20002-MAT0001",
+            "designation": "Enceinte Yamaha DXR12",
+            "marque": "Yamaha",
+            "detailTechnique": "Enceinte active 1100W, 12 pouces",
+            "imageURL": "77kLebA.jpg",
+            "prixLocation": "40.00",
+            "prixCaution": "250.00"
+          }
+        ]
+      },
+ "materiels": []
+  },
+.....
+]
+
+
+RESPONSE DU Backend pour le Pack
+export const packService = {
+  list: async () => await verifierReponse(() => api.get("/pack")),
+  packsDisponible:  async (d) => {
+	const data= {
+	  "dateDebut": d.dateDebut,
+  	  "dateFin": d.dateFin
+	}
+	await verifierReponse(() => api.post("/pack/disponibles")),
+  }
+  ...
+}
+
+[
+  {
+    "codePack": "PACK0001",
+    "libelle": "Pack Mariage 100 personnes",
+    "description": "Sonorisation + micros + eclairage pour mariage",
+    "categoriePack": "mariage",
+    "capaciteMin": 50,
+    "capaciteMax": 150,
+    "typeLieu": "interieur",
+    "usages": [
+      "mariage",
+      "reception"
+    ],
+    "puissanceTotal": "1500.00",
+    "tarifJournalier": "250.00",
+    "prixCaution": "800.00",
+    "statutPack": "actif",
+    "photos": "2auvZs.jpg",
+    "dateCreation": "2026-11-12T20:45:00.280Z",
+    "dateModification": "2026-11-12T21:22:13.427Z",
+    "composants": [
+      {
+        "idComposant": 1,
+        "quantite": 2,
+        "materiel": {
+          "CodeMateriel": "CAT20001-MAT0001",
+          "designation": "Systeme colonne RCF ART 715",
+          "marque": "RCF",
+          "detailTechnique": "Enceinte amplifiee 700W RMS, 15 pouces",
+          "imageURL": "756405.jpg",
+          "prixLocation": "45.00",
+          "prixCaution": "300.00"
+        }
+      },
+      {
+        "idComposant": 2,
+        "quantite": 2,
+        "materiel": {
+          "CodeMateriel": "CAT20003-MAT0001",
+          "designation": "Micro Shure SM58",
+          "marque": "Shure",
+          "detailTechnique": "Micro dynamique cardioide filaire",
+          "imageURL": "1044289-download-asrock-wallpapers-1920x1080.jpg",
+          "prixLocation": "8.00",
+          "prixCaution": "50.00"
+        }
+      },
+     ]
+   },
+...
+]
+
+
+Informations nécessaires pour la creation de reservation : 
+
+export class CreateReservationDto {
+  @IsString()
+  @IsNotEmpty({ message: 'Le locataire doit être mentionné.' })
+  idUser: string;
+
+  @IsDateString()
+  @IsNotEmpty({ message: 'La date de début prévue est obligatoire.' })
+  dateDebutPrevue: string;
+
+  @IsDateString()
+  @IsNotEmpty({ message: 'La date de fin prévue est obligatoire.' })
+  dateFinPrevue: string;
+
+  @IsOptional()
+  @IsString()
+  lieuEvenement?: string;
+
+  @IsOptional()
+  @IsString()
+  remarques?: string;
+
+  @IsOptional()
+  @IsEnum(ModeRetrait)
+  modeRetrait?: ModeRetrait;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  fraisLivraison?: number;
+
+  @IsIn(['pack', 'personnalise', 'materiel'])
+  @IsNotEmpty()
+  actionLocataire: 'pack' | 'personnalise' | 'materiel';
+
+  @ValidateIf((o) => o.actionLocataire !== 'materiel')
+  @IsString()
+  @IsNotEmpty({ message: 'codePack requis pour un pack ou une personnalisation.' })
+  codePack?: string;
+
+  @ValidateIf((o) => o.actionLocataire === 'pack')
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  quantitePack?: number;
+
+  @ValidateIf((o) => o.actionLocataire !== 'pack')
+  @IsArray()
+  @ArrayMinSize(1, { message: 'Au moins un matériel est requis.' })
+  @ValidateNested({ each: true })
+  @Type(() => LigneMaterielDto)
+  materiels?: LigneMaterielDto[];
+}
+
+ 
+  export class LigneMaterielDto {
+    @IsString()
+    @IsNotEmpty({ message: 'Le code matériel est obligatoire.' })
+    codeMateriel: string;
+  
+    @IsInt({ message: 'La quantité doit être un entier.' })
+    @Min(1, { message: 'La quantité doit être d\'au moins 1.' })
+    quantite: number;
+  
+    @IsOptional()
+    @IsNumber()
+    @Min(0)
+    tarifApplique?: number;
+  }

@@ -1,0 +1,9 @@
+Ce sont les fonctionnalités indispensables. Sans elles, l'application n'a aucune valeur métier et le business ne peut pas tourner.
+• Faire une réservation (Côté Client) : Le tunnel d'achat de base (choix des dates, sélection d'un matériel, validation).
+• Vérifier la disponibilité des stocks (Inclusion automatique) : L'algorithme qui empêche de louer la même enceinte à deux personnes différentes le même week-end.
+• Gérer le catalogue : Matériels (Côté Admin) : Pouvoir saisir vos fiches techniques et vos stocks physiques totaux (la base de données de votre matériel).
+• Gérer le Retrait (Côté Logistique) : Pouvoir scanner et sortir le matériel le jour J pour que le client parte avec son contrat.
+• Gérer le Retour (Côté Logistique) : Réintégrer le matériel dans le stock pour qu'il soit de nouveau louable et libérer/bloquer la caution.
+
+
+Un diagramme de cas d'utilisation (en UML, Use Case Diagram) est un diagramme comportemental qui sert à modéliser les besoins fonctionnels d'un système du point de vue de l'utilisateur
